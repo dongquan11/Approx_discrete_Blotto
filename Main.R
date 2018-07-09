@@ -9,48 +9,48 @@
     
 print(paste("Parameters = ",N,v_min,v_max,m,p))
 n_min <- 2*(v_max * p)/ (v_min * m)
-source("condition check.R")  #file to check if condition N >= 2 (v_max/v_min) (p/m)
-source("DIU-strategy.R") #file to create a realization of DIU_strategy (Algorithm 2)
-source("CSF.R")           #file to define the Blotto rule
-source("BF values.R")      #file to create an array of battlefields values
-source("DynPro.R")         #file to write the Dynamic Programming (Algorithm 1)
+source("condition check.R")     #Call the source file that is used to check if condition N >= 2 (v_max/v_min)(p/m)
+source("CSF.R")                 #Call the source file that is used to to define the Blotto rule
+source("BF values.R")           #Call the source file that is used to create an array of battlefields values v
+source("DIU-strategy.R")        #Call the source file that is used to create a realization of DIU_strategy (Algorithm 1)
+source("DynPro.R")              #Call the source file that is used to to write the Dynamic Programming algorithm (Algorithm 2)
 
-condition <- 1   #binary variale to say if the parameters yielding the conditions
-condition_check()
+condition <- 1          #Initialize Condition=1.
+condition_check()       #Function from ("condition check.R") to check N >= 2 (v_max/v_min)(p/m).
 
 # Choose to create new values of battlefields or to read from data
 if (condition == 1){
-  #v <- c(3,1,1,1,1,1,1)  #Example of v for checking
+  #v <- c(3,1,1,1,1,1,1)  #Example of an array of battlefields values: v
   
-  create_value()     #Create a vector of battlefields' values (depends on N, m, p)
-  #read_value()      #Read a vector of battlefields' values from value_latest.csv
+  create_value()     #Function from ("BF values.R") to create a vector of battlefields' values (depends on N, m, p)
+  #read_value()      #Function from ("BF values.R") to read a vector of battlefields' values from value_latest.csv
 
   
   
 ###############################################
 ####  2. EVALUATE THE EPSILON-EQUILIBRIUM  ####
-for (R in 1:3){         # Number of repeated instances (to take the average)
-  start <- proc.time()  #start counting time
+for (R in 1:3){         # Number of repeated instances that are used to take the average results.
+  start <- proc.time()  # Start counting the elapse_time
   ########### 2.1. Payoff of players when both play (DIU,DIU) ###########
   ###########  Approximate F_{A^D_i} and F_{B^D_i} by their eCDFs #############
-  T <- 10*N        #Number of generating realizations to find eCDF
-  u_A_sum = 0      #Initialize the payoff of A and B after T times running
+  T <- 10*N        # Number of generating realizations to find eCDF
+  u_A_sum = 0      # Initialize the payoff of A and B after T times running
   u_B_sum = 0
   
   DIU_store_A <- matrix(data = NA, nrow = T, ncol = N) #Initialize a matrix to store DIU realizations
   DIU_store_B <- matrix(data = NA, nrow = T, ncol = N)
  
   for (t in 1:T){
-      DIU_store_A[t,] <- DIU_A()  # Playing DIU and storing the allocations to find ecdf
-      DIU_store_B[t,] <- DIU_B()
-      A_gain = 0          #Initialize what A gain from battlefields
+      DIU_store_A[t,] <- DIU_A()    #Generate a realization of DIU_A by the function from ("DIU-strategy.R") store it to DIU_store_A
+      DIU_store_B[t,] <- DIU_B()    #Generate a realization of DIU_A by the function from ("DIU-strategy.R") store it to DIU_store_A
+      A_gain = 0                    #Initialize what A gain from battlefields
       for (i in 1:N){
-        A_gain = A_gain + v[i]*CSF_A(DIU_store_A[t,i],DIU_store_B[t,i])
+        A_gain = A_gain + v[i]*CSF_A(DIU_store_A[t,i],DIU_store_B[t,i])     #CSF_A is the Blotto rule for player A from ("CSF.R")  
       }
       u_A_sum = u_A_sum  + A_gain
-      u_B_sum = u_B_sum  + (sum(v)- A_gain)
+      u_B_sum = u_B_sum  + (sum(v)- A_gain)         #The total gain of B is equal to the difference of the total value and total gain of A
   }
-  u_A_DIU <- (u_A_sum/T)   #Average payoff after T times  
+  u_A_DIU <- (u_A_sum/T)                            #Average payoff after T times  
   u_B_DIU <- (u_B_sum/T)    
 
   print(paste("Expected payoffs of player A and B, when both play DIU:", u_A_DIU," and ", u_B_DIU))
@@ -59,15 +59,15 @@ for (R in 1:3){         # Number of repeated instances (to take the average)
   ####### 2.2 DynPro  u_A(best,DIU) and u_B(DIU,best) ##############
   ####### Running Dynamic Programming for finding Best_response ###############
   start_Dyn <- proc.time() #start counting time
-  A_Dyn <- Dynpro_A()
-  B_Dyn <- Dynpro_B()
-  print(paste("A's best payoffs against DIU_B: ",A_Dyn))
+  A_Dyn <- Dynpro_A()            #Function Dynpro_A from ("DynPro.R") to find the best response of player A against the ecdf(DIU_store_B)
+  B_Dyn <- Dynpro_B()            #Function Dynpro_B from ("DynPro.R") to find the best response of player B against the ecdf(DIU_store_A)
+  print(paste("A's best payoffs against DIU_B: ", A_Dyn))
   print(paste("B's best payoffs against DIU_A: ", B_Dyn))
   
 
 ##########################################################
   ######### 4. PRINT AND EXPORTING RESULT ##############
-  epsilon <- max(  (abs(u_A_DIU-A_Dyn)),(abs(u_B_DIU-B_Dyn))   ) /sum(v) 
+  epsilon <- max(  (abs(u_A_DIU-A_Dyn)),(abs(u_B_DIU-B_Dyn))) /sum(v) 
   elapsed_Dyn <- proc.time() - start_Dyn #time the process
   
   
