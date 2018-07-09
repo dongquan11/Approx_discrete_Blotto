@@ -1,9 +1,6 @@
 #####################################
 ####  1. PARAMETERS OF THE GAME  ####
-for (t1 in c(20,50,100,150,200)){ #Loop to run with different # of battlefields
-  for (t2 in c(5,10,20,seq(from=200, to = 2000, by = 200))){    #Loop to run with different # of troops
-
-    N <-  t1   # number of battlefields
+    N <-  t1    # Number of battlefields
     v_min <- 1
     v_max <- 8
     m <- 5*t2     #number of troops of player A
@@ -87,6 +84,5 @@ for (R in 1:3){         # Number of repeated instances (to take the average)
   cat("\n")
       }   #end of for loop of R condition
   
-    }   #end the if condition
-  }     #end the T1 for loop
-}       #end the T2 for loop
+}   #end the if condition
+    
