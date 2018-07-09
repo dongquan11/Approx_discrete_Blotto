@@ -1,12 +1,11 @@
 #####################################
 ####  1. PARAMETERS OF THE GAME  ####
     N <-  t1    # Number of battlefields
-    v_min <- 1
-    v_max <- 8
-    m <- 5*t2     #number of troops of player A
-    p <- 6*t2   #number of troops of player B (which is >= m) 
-    #Here lambda:= p/m = 6/5 
-    
+    v_min <- 1  # The lower bound of the range that battlefields' values are generated from
+    v_max <- 8  # The upper bound of the range that battlefields' values are generated from
+    m <- 25   # Number of troops of player A
+    p <- 30   # Number of troops of player B (which is >= m) 
+        
 print(paste("Parameters = ",N,v_min,v_max,m,p))
 n_min <- 2*(v_max * p)/ (v_min * m)
 source("condition check.R")     #Call the source file that is used to check if condition N >= 2 (v_max/v_min)(p/m)
