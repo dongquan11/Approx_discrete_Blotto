@@ -1,5 +1,6 @@
+#Create/read the values of the battlefields.
 create_value <- function (){
-    v <<- runif(N, v_min, v_max)
+    v <<- runif(N, v_min, v_max)                #
     time <- gsub(":","",as.character(Sys.time()))
     write.csv(c(N,m,p,v), "values_latest.csv")  #write down the vector into the file to use later
 }
